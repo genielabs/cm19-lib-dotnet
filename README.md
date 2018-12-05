@@ -2,7 +2,7 @@
 [![NuGet](https://img.shields.io/nuget/v/CM19Lib.svg)](https://www.nuget.org/packages/CM19Lib/)
 ![License](https://img.shields.io/github/license/genielabs/cm19-lib-dotnet.svg)
 
-# Home Automation CM19 X10 RF Transceiver library for .NET
+# CM19 X10 RF transceiver library for Home Automation (.NET)
 
 ## Features
 
@@ -11,7 +11,7 @@
 - Automatically restabilish connection on error/disconnect
 - Compatible with Mono
 
-## Requirements for using with CM15 interface
+## Requirements for using with CM19 interface
 
 ### Linux / Mac OSX
 
@@ -21,7 +21,7 @@ Install the libusb-1.0 package
 
 ### Windows
 
-Install the CM19 LibUSB driver by executing the *InstallDriver.exe* file contained in the *WindowsUsbDriver* folder.
+Install the CM19 LibUSB driver by executing the **InstallDriver.exe** file contained in the **WindowsUsbDriver** folder.
 
 ## NuGet Package
 
