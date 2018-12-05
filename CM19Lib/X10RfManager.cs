@@ -327,8 +327,12 @@ namespace CM19Lib
                     //
 
                     /* CM19A initialization strings */
-                    Cm19Configuration cfg = Utility.ReadFromXmlFile<Cm19Configuration>("cm19_config.xml");
-                    if (cfg == null) cfg = new Cm19Configuration();
+                    Cm19Configuration cfg = new Cm19Configuration();
+                    try
+                    {
+                        cfg = Utility.ReadFromXmlFile<Cm19Configuration>("cm19_config.xml");
+                    }
+                    catch { }
                     //WriteToXmlFile("cm19_config.xml", cfg, false);
                     if (cfg.init0 != null && cfg.init0.Length > 0) SendMessage(Utility.StringToByteArray(cfg.init0));
                     if (cfg.init1 != null && cfg.init1.Length > 0) SendMessage(Utility.StringToByteArray(cfg.init1));
