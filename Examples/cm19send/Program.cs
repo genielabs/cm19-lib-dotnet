@@ -45,7 +45,7 @@ namespace cm19send
                 Console.WriteLine("    mono cm19send.exe A1+ A2+ A3- A- A+\n");
                 Console.WriteLine("  Will turn ON A1 and A2, OFF A3 and then it will");
                 Console.WriteLine("  send a DIM and BRIGHT command (to house code A).\n");
-                Console.WriteLine("Example of sending PTZ camera commands:\n");
+                Console.WriteLine("Example of sending PT camera commands:\n");
                 Console.WriteLine("    mono cm19send.exe AU AL BD BR\n");
                 Console.WriteLine("  Will move camera with house code A UP and LEFT");
                 Console.WriteLine("  and the camera with house code B DOWN and RIGHT.\n");

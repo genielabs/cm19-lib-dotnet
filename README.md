@@ -6,10 +6,12 @@
 
 ## Features
 
+- Supports sending and receiving of following X10 RF messages:
+    - **Standard** module commands (On, Off, Dim, Bright, AllLightsOn, AllUnitsOff)
+    - **Camera** pan/tilt commands (Left, Right, Up, Down)
+    - **Security** sensors (Motion and door/window sensors, security remotes)
 - Event driven
-- Hot plug
-- Automatically restabilish connection on error/disconnect
-- Compatible with Mono
+- Hot plug and automatic re-connection on error
 
 ## Prerequisites
 
@@ -75,7 +77,7 @@ the **+** (**ON**) or **-** (**OFF**) symbol.
 If no unit code is provided the **+** will perform a **BRIGHT** command or a **DIM**
 command in case the **-** symbol is used (eg. *+A* or -*A-*).
 
-An X10 PTZ camera command starts with the house code followed by one of the following:
+An X10 PT camera command starts with the house code followed by one of the following:
  **U** for up, **L** for left, **D** for down and **R** for right.
 
 ## Example code
@@ -112,7 +114,7 @@ cm19.AllUnitsOff(HouseCode.A);
 // Alternative way of sending standard X10 commands
 cm19.SendCommand(HouseCode.E, UnitCode.Unit_12, Command.On);
 
-// Sending PTZ camera commands
+// Sending PT camera commands
 cm19.SendCameraCommand(HouseCode.A, Command.CameraDown);
 cm19.SendCameraCommand(HouseCode.A, Command.CameraLeft);
 

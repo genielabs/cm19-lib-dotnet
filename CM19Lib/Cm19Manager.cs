@@ -116,7 +116,7 @@ namespace CM19Lib
         public event X10SecurityReceivedEventHandler RfSecurityReceived;
 
         /// <summary>
-        /// Occurs when x10 PTZ camera command is received.
+        /// Occurs when x10 PT camera command is received.
         /// </summary>
         public event X10CommandReceivedEventHandler RfCameraReceived;
         
