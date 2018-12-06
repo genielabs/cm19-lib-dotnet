@@ -64,14 +64,19 @@ cm19recv.exe
 **cm19send** is a program to send X10 command.
 Example usage:
 ```bash
-cm19send.exe +A1 +A5 -A7 -A -A +C2
+# X10 standard commands
+# and camera commands (the last two)
+cm19send.exe A1+ A5+ A7- A- A- C2+ AU BD
 ```
 The program can send one ore more X10 commands (separated by a white space).
-An X10 command starts with the **+** (**ON**) or **-** (**OFF**) symbol followed by
-the house code and the unit code.
+An X10 standard command starts with the house code followed by the unit code and
+the **+** (**ON**) or **-** (**OFF**) symbol.
 
 If no unit code is provided the **+** will perform a **BRIGHT** command or a **DIM**
 command in case the **-** symbol is used (eg. *+A* or -*A-*).
+
+An X10 PTZ camera command starts with the house code followed by one of the following:
+ **U** for up, **L** for left, **D** for down and **R** for right.
 
 ## Example code
 
@@ -87,6 +92,7 @@ cm19.ConnectionStatusChanged += cm19_ConnectionStatusChanged;
 cm19.RfDataReceived += cm19_RfDataReceived;
 cm19.RfCommandReceived += cm19_RfCommandReceived;
 cm19.RfSecurityReceived += cm19_RfSecurityReceived;
+cm19.RfCameraReceived += cm19_RfCameraReceived;
 
 //...
 
@@ -95,19 +101,23 @@ cm19.Connect();
 
 //...
             
-// Examples of sending X10 commands
+// Examples of sending standard X10 commands
 cm19.UnitOff(HouseCode.C, UnitCode.Unit_7);
 cm19.UnitOn(HouseCode.A, UnitCode.Unit_4);
 cm19.Dim(HouseCode.A);
 cm19.Bright(HouseCode.A);
 cm19.AllLightsOn(HouseCode.A);
 cm19.AllUnitsOff(HouseCode.A);
-// Alternative way of sending X10 commands
+
+// Alternative way of sending standard X10 commands
 cm19.SendCommand(HouseCode.E, UnitCode.Unit_12, Command.On);
+
+// Sending PTZ camera commands
+cm19.SendCameraCommand(HouseCode.A, Command.CameraDown);
+cm19.SendCameraCommand(HouseCode.A, Command.CameraLeft);
+
 // Raw send X10 command (Security Disarm)
 cm19.SendMessage(new byte[]{0x29, 0x66, 0x69, 0x86, 0x79, 0x4A, 0x80});
-
-//...
 
 // Disconnect the interface
 cm19.Disconnect();
@@ -134,6 +144,12 @@ void Cm19_RfSecurityReceived(object sender, RfSecurityReceivedEventArgs args)
 {
     Console.WriteLine("Received RF Security event {0} from address {1}", 
         args.Event, args.Address.ToString("X3"));
+}
+
+private static void cm19_RfCameraReceived(object sender, RfCommandReceivedEventArgs args)
+{
+    Console.WriteLine("Received RF camera command {0} House Code {1} Unit {2}",
+        args.Command, args.HouseCode, args.UnitCode.ToString().Replace("Unit_", ""));
 }
 ```
 

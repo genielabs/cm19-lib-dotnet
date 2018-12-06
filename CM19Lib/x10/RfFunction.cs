@@ -28,12 +28,20 @@ namespace CM19Lib.X10
     public enum RfFunction
     {
         NotSet = 0xFF,
+        
+        /* Standard 5-byte commands: */
         On = 0x00,
         Off = 0x01,
         AllLightsOff = 0x80,
         AllLightsOn = 0x90,
         Dim = 0x98,
-        Bright = 0x88
+        Bright = 0x88,
+        
+        /* Pan'n'Tilt 4-byte commands: */
+        CameraUp = 0x762,
+        CameraRight = 0x661,
+        CameraDown = 0x863,
+        CameraLeft = 0x560,
     }
 }
 

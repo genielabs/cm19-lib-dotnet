@@ -41,7 +41,7 @@ namespace cm19recv
             cm19.RfDataReceived += cm19_RfDataReceived;
             cm19.RfCommandReceived += cm19_RfCommandReceived;
             cm19.RfSecurityReceived += cm19_RfSecurityReceived;
-            // TODO: cm19.RfCameraReceived += cm19_RfCameraReceived;
+            cm19.RfCameraReceived += cm19_RfCameraReceived;
             // Connect to the interface
             cm19.Connect();
 
@@ -70,6 +70,11 @@ namespace cm19recv
         private static void cm19_RfSecurityReceived(object sender, RfSecurityReceivedEventArgs args)
         {
             Console.WriteLine("Received RF Security event {0} from address {1}", args.Event, args.Address.ToString("X3"));
+        }
+
+        private static void cm19_RfCameraReceived(object sender, RfCommandReceivedEventArgs args)
+        {
+            Console.WriteLine("Received RF camera command {0} House Code {1} Unit {2}", args.Command, args.HouseCode, args.UnitCode.ToString().Replace("Unit_", ""));
         }
     }
 }

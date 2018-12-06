@@ -186,6 +186,30 @@ namespace CM19Lib
             return unitCode;
         }
 
+        public static byte HouseCodeToCamera(HouseCode houseCode)
+        {
+            // Translate house code to octet necessary for 2nd byte in Pan'n'Tilt commands
+            switch (houseCode) {
+                case HouseCode.A: return 0x90;
+                case HouseCode.B: return 0xA0;
+                case HouseCode.C: return 0x70;
+                case HouseCode.D: return 0x80;
+                case HouseCode.E: return 0xB0;
+                case HouseCode.F: return 0xC0;
+                case HouseCode.G: return 0xD0;
+                case HouseCode.H: return 0xE0;
+                case HouseCode.I: return 0x10;
+                case HouseCode.J: return 0x20;
+                case HouseCode.K: return 0xF0;
+                case HouseCode.L: return 0x00;
+                case HouseCode.M: return 0x30;
+                case HouseCode.N: return 0x40;
+                case HouseCode.O: return 0x50;
+                case HouseCode.P: return 0x60;
+                default: return 0x90; /* default to A if bad houseCode */
+            }
+        }
+
         public static byte ReverseByte(byte originalByte)
         {
             int result = 0;

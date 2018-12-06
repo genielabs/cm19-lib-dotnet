@@ -40,10 +40,15 @@ namespace cm19send
             commands = args;
             if (commands.Length == 0)
             {
-                Console.WriteLine("Usage: mono cm19send.exe <command_1> [<command_2>...<command_n>]");
-                Console.WriteLine("Example: mono cm19send.exe +A1 +A2 -A3 -A +A");
-                Console.WriteLine("         Will turn ON A1 and A2, OFF A3 and then it will");
-                Console.WriteLine("         send a DIM and BRIGHT command (to house code A)");
+                Console.WriteLine("Usage: mono cm19send.exe <command_1> [<command_2>...<command_n>]\n");
+                Console.WriteLine("Example of sending standard commands:\n");
+                Console.WriteLine("    mono cm19send.exe A1+ A2+ A3- A- A+\n");
+                Console.WriteLine("  Will turn ON A1 and A2, OFF A3 and then it will");
+                Console.WriteLine("  send a DIM and BRIGHT command (to house code A).\n");
+                Console.WriteLine("Example of sending PTZ camera commands:\n");
+                Console.WriteLine("    mono cm19send.exe AU AL BD BR\n");
+                Console.WriteLine("  Will move camera with house code A UP and LEFT");
+                Console.WriteLine("  and the camera with house code B DOWN and RIGHT.\n");
                 return;
             }
             var cm19 = new Cm19Manager();
@@ -70,39 +75,62 @@ namespace cm19send
             HouseCode houseCode = HouseCode.NotSet;
             UnitCode unitCode = UnitCode.UnitNotSet;
             Command command = Command.NotSet;
+            bool isCameraCommand = false;
             for (int i = 0; i < commands.Length; i++)
             {
                 string cmd = commands[i].ToUpper();
                 if (cmd.Length == 2)
                 {
-                    if (!Enum.TryParse(cmd[1].ToString(), out houseCode))
+                    if (!Enum.TryParse(cmd[0].ToString(), out houseCode))
                     {
                         Console.WriteLine("Invalid house code.");
                         return;
                     }
-                    switch (cmd[0])
+                    if (cmd[1] == '+' || cmd[1] == '-')
                     {
-                        case '+':
-                            command = Command.Bright;
-                            break;
-                        case '-':
-                            command = Command.Dim;
-                            break;
+                        switch (cmd[1])
+                        {
+                            case '+':
+                                command = Command.Bright;
+                                break;
+                            case '-':
+                                command = Command.Dim;
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        isCameraCommand = true;
+                        switch (cmd[1])
+                        {
+                            case 'U':
+                                command = Command.CameraUp;
+                                break;
+                            case 'D':
+                                command = Command.CameraDown;
+                                break;
+                            case 'L':
+                                command = Command.CameraLeft;
+                                break;
+                            case 'R':
+                                command = Command.CameraRight;
+                                break;
+                        }
                     }
                 }
                 else if (cmd.Length > 2)
                 {
-                    if (!Enum.TryParse(cmd[1].ToString(), out houseCode))
+                    if (!Enum.TryParse(cmd[0].ToString(), out houseCode))
                     {
                         Console.WriteLine("Invalid house code.");
                         return;
                     }
-                    if (!Enum.TryParse("Unit_"+cmd.Substring(2), out unitCode))
+                    if (!Enum.TryParse("Unit_"+cmd.Substring(1, cmd.Length - 2), out unitCode))
                     {
                         Console.WriteLine("Invalid unit number.");
                         return;
                     }
-                    switch (cmd[0])
+                    switch (cmd[cmd.Length-1])
                     {
                         case '+':
                             command = Command.On;
@@ -110,10 +138,23 @@ namespace cm19send
                         case '-':
                             command = Command.Off;
                             break;
+                        default:
+                            Console.WriteLine("Invalid command.");
+                            return;
                     }
                 }
-                Console.WriteLine("Sending X10 command '{0}' HouseCode '{1}' Unit '{2}'", command, houseCode, unitCode);
-                cm19.SendCommand(houseCode, unitCode, command);
+                if (isCameraCommand)
+                {
+                    Console.WriteLine("Sending X10 camera command '{0}' HouseCode '{1}'", command, houseCode);
+                    cm19.SendCameraCommand(houseCode, command);
+                    isCameraCommand = false;
+                }
+                else
+                {
+                    Console.WriteLine("Sending X10 command '{0}' HouseCode '{1}' Unit '{2}'", command, houseCode, unitCode);
+                    cm19.SendCommand(houseCode, unitCode, command);
+                }
+                // pause 1 second between each command
                 if (i < commands.Length - 1) Thread.Sleep(1000);
             }
         }

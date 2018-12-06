@@ -115,6 +115,11 @@ namespace CM19Lib
         /// </summary>
         public event X10SecurityReceivedEventHandler RfSecurityReceived;
 
+        /// <summary>
+        /// Occurs when x10 PTZ camera command is received.
+        /// </summary>
+        public event X10CommandReceivedEventHandler RfCameraReceived;
+        
         #endregion
 
         #region Instance Management
@@ -253,6 +258,32 @@ namespace CM19Lib
             SendCommand(houseCode, 0x00, Command.AllUnitsOff);
         }
 
+        /// <summary>
+        /// Sends a Camera command.
+        /// </summary>
+        /// <param name="houseCode">House code.</param>
+        /// <param name="command">Camera command.</param>
+        /// <returns></returns>
+        public bool SendCameraCommand(HouseCode houseCode, Command command)
+        {
+            try
+            {
+                SendMessage(new[]
+                {
+                    (byte) RfCommandType.Camera,
+                    (byte) (((int)command >> 8) | Utility.HouseCodeToCamera(houseCode)),
+                    (byte) ((int)command & 0xFF),
+                    (byte) houseCode
+                });
+            }
+            catch (Exception e)
+            {
+                logger.Error(e);
+                return false;
+            }
+            return true;
+        }
+        
         /// <summary>
         /// Turn off the specified module (houseCode, unitCode).
         /// </summary>
@@ -420,10 +451,12 @@ namespace CM19Lib
                             bool isSecurityCode = (message[0] == (byte)RfCommandType.Security) && 
                                                   (message.Length == 7 && ((message[2] ^ message[1]) == 0x0F) &&
                                                    ((message[4] ^ message[3]) == 0xFF));
-                            bool isCodeValid = isSecurityCode || (message[0] == (byte)RfCommandType.Standard) && 
-                                               (message.Length == 5 &&
-                                                ((message[2] & ~message[1]) == message[2] &&
-                                                 (message[4] & ~message[3]) == message[4]));                            
+                            bool isCameraCode = (message[0] == (byte) RfCommandType.Security);
+                            bool isStandardCode = (message[0] == (byte) RfCommandType.Standard) &&
+                                                  (message.Length == 5 &&
+                                                   ((message[2] & ~message[1]) == message[2] &&
+                                                    (message[4] & ~message[3]) == message[4]));
+                            bool isCodeValid = isStandardCode || isCameraCode || isSecurityCode;                            
 
                             // Repeated messages check
                             if (isCodeValid)
@@ -455,8 +488,13 @@ namespace CM19Lib
                                     logger.Warn("Could not parse security event");
                                 }
                             }
-                            // TODO: implement code for type RfCommandType.Camera
-                            else if (isCodeValid)
+                            else if (isCameraCode)
+                            {
+                                var houseCode = (HouseCode) (message[1] & 0xF0);
+                                var command = (RfFunction)(((message[1] & 0xF) << 8) | message[2]);
+                                OnRfCameraReceived(new RfCommandReceivedEventArgs(command, houseCode, UnitCode.Unit_1));
+                            }
+                            else if (isStandardCode)
                             {
                                 // Decode received 32 bit message
                                 // house code + 4th bit of unit code
@@ -624,6 +662,16 @@ namespace CM19Lib
         {
             if (RfSecurityReceived != null)
                 RfSecurityReceived(this, args);
+        }
+
+        /// <summary>
+        /// Raises the RF camera command received event.
+        /// </summary>
+        /// <param name="args"></param>
+        protected virtual void OnRfCameraReceived(RfCommandReceivedEventArgs args)
+        {
+            if (RfCameraReceived != null)
+                RfCameraReceived(this, args);
         }
 
         #endregion
