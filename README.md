@@ -75,7 +75,7 @@ An X10 standard command starts with the house code followed by the unit code and
 the **+** (**ON**) or **-** (**OFF**) symbol.
 
 If no unit code is provided the **+** will perform a **BRIGHT** command or a **DIM**
-command in case the **-** symbol is used (eg. *+A* or -*A-*).
+command in case the **-** symbol is used (eg. *A+* or *A-*).
 
 An X10 PT camera command starts with the house code followed by one of the following:
  **U** for up, **L** for left, **D** for down and **R** for right.
