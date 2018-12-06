@@ -11,17 +11,33 @@
 - Automatically restabilish connection on error/disconnect
 - Compatible with Mono
 
-## Requirements for using with CM19 interface
+## Prerequisites
 
 ### Linux / Mac OSX
 
 Install the libusb-1.0 package
 
     apt-get install libusb-1.0-0 libusb-1.0-0-dev
+    
+Add the following lines to the **/etc/modprobe.d/blacklist.conf** file:
+```
+# Disable CM19 kernel modules to allow third-party apps to access the device
+blacklist lirc_atiusb
+blacklist ati_remote
+blacklist rc_ati_x10
+```
+Reboot or alternatively issue the following commands
+```bash
+rmmod lirc_atiusb
+rmmod ati_remote
+rmmod rc_ati_x10
+```
 
 ### Windows
 
-Install the CM19 LibUSB driver by executing the **InstallDriver.exe** file contained in the **WindowsUsbDriver** folder.
+**Do not plug in the device before installing the CM19 driver**. If a driver was already installed, uninstall it first.
+Then install the CM19 LibUSB driver by executing the **InstallDriver.exe** file contained in the **WindowsUsbDriver** folder.
+The CM19 can now be plugged in.
 
 ## NuGet Package
 
@@ -29,7 +45,35 @@ CM19Lib is available as a [NuGet package](https://www.nuget.org/packages/CM19Lib
 
 Run `Install-Package CM19Lib` in the [Package Manager Console](http://docs.nuget.org/docs/start-here/using-the-package-manager-console) or search for “CM19Lib” in your IDE’s package management plug-in.
 
-## Example usage
+## Examples
+
+Two examples programs are available in the *Examples* folder.
+Both programs require *administrator* privileges in order to access the USB hardware.
+
+### Receiver program
+
+The **cm19recv** program will receive and output all X10 RF commands in a human readable form.
+
+Example usage:
+```bash
+cm19recv.exe
+```
+
+### Sender program
+
+**cm19send** is a program to send X10 command.
+Example usage:
+```bash
+cm19send.exe +A1 +A5 -A7 -A -A +C2
+```
+The program can send one ore more X10 commands (separated by a white space).
+An X10 command starts with the **+** (**ON**) or **-** (**OFF**) symbol followed by
+the house code and the unit code.
+
+If no unit code is provided the **+** will perform a **BRIGHT** command or a **DIM**
+command in case the **-** symbol is used (eg. *+A* or -*A-*).
+
+## Example code
 
 ```csharp
 using CM19Lib;

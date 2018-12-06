@@ -26,21 +26,16 @@ using System.Threading;
 
 using CM19Lib;
 using CM19Lib.Events;
-using CM19Lib.X10;
 
-namespace Test.X10
+namespace cm19recv
 {
-    class MainClass
+    internal class Program
     {
         public static void Main(string[] args)
         {
-            // NOTE: To disable debug output uncomment the following two lines
-            //LogManager.Configuration.LoggingRules.RemoveAt(0);
-            //LogManager.Configuration.Reload();
-
-            Console.WriteLine("XTenLib test program, waiting for connection.");
-            var cm19 = new X10RfManager();
-            // Listen to X10RfManager events
+            Console.WriteLine("CM19 RF receiver program (press CTRL+C to exit).");
+            var cm19 = new Cm19Manager();
+            // Listen to Cm19Manager events
             cm19.ConnectionStatusChanged += cm19_ConnectionStatusChanged;
             // RF events
             cm19.RfDataReceived += cm19_RfDataReceived;
@@ -49,25 +44,12 @@ namespace Test.X10
             // TODO: cm19.RfCameraReceived += cm19_RfCameraReceived;
             // Connect to the interface
             cm19.Connect();
-            
-            // Examples of sending X10 commands
-            //cm19.UnitOff(HouseCode.C, UnitCode.Unit_7);
-            //cm19.UnitOn(HouseCode.A, UnitCode.Unit_4);
-            //cm19.Dim(HouseCode.A);
-            //cm19.Bright(HouseCode.A);
-            //cm19.AllLightsOn(HouseCode.A);
-            //cm19.AllUnitsOff(HouseCode.A);
-            // Alternative way of sending X10 commands
-            //cm19.SendCommand(HouseCode.E, UnitCode.Unit_12, Command.On);
-            // Raw send X10 command (Security Disarm)
-            //cm19.SendMessage(new byte[]{0x29, 0x66, 0x69, 0x86, 0x79, 0x4A, 0x80});
 
             // Prevent the program from quitting with a noop loop
             while (true)
             {
                 Thread.Sleep(1000);
             }
-
         }
 
         private static void cm19_ConnectionStatusChanged(object sender, ConnectionStatusChangedEventArgs args)

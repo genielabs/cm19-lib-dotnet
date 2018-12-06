@@ -27,7 +27,7 @@ using System.Threading;
 using LibUsbDotNet;
 using LibUsbDotNet.Main;
 
-namespace CM19Lib.Drivers
+namespace CM19Lib.Driver
 {
     
     /// <summary>
@@ -64,7 +64,7 @@ namespace CM19Lib.Drivers
             }
             catch (Exception e)
             {
-                X10RfManager.logger.Error(e);
+                Cm19Manager.logger.Error(e);
             }
             try
             {
@@ -72,7 +72,7 @@ namespace CM19Lib.Drivers
             }
             catch (Exception e)
             {
-                X10RfManager.logger.Error(e);
+                Cm19Manager.logger.Error(e);
             }
         }
 
@@ -142,7 +142,7 @@ namespace CM19Lib.Drivers
                 }
                 catch (Exception e)
                 {
-                    X10RfManager.logger.Error(e);
+                    Cm19Manager.logger.Error(e);
                 }
             }
             myUsbDevice = null;

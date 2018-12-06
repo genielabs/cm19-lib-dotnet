@@ -24,7 +24,7 @@
 using System;
 using System.Threading;
 
-using CM19Lib.Drivers;
+using CM19Lib.Driver;
 using CM19Lib.Events;
 using CM19Lib.X10;
 
@@ -35,7 +35,7 @@ namespace CM19Lib
     /// <summary>
     /// X10 Home Automation library for .NET / Mono. It supports CM11 (serial) and CM15 (USB) hardware.
     /// </summary>
-    public class X10RfManager
+    public class Cm19Manager
     {
         #region Private Fields
 
@@ -120,18 +120,18 @@ namespace CM19Lib
         #region Instance Management
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="X10RfManager"/> class.
+        /// Initializes a new instance of the <see cref="Cm19Manager"/> class.
         /// </summary>
-        public X10RfManager()
+        public Cm19Manager()
         {
-            x10Interface = new Drivers.CM19();
+            x10Interface = new Driver.CM19();
         }
 
         /// <summary>
         /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="X10RfManager"/> is reclaimed by garbage collection.
+        /// <see cref="Cm19Manager"/> is reclaimed by garbage collection.
         /// </summary>
-        ~X10RfManager()
+        ~Cm19Manager()
         {
             Close();
         }
@@ -324,7 +324,6 @@ namespace CM19Lib
                     // Start the Reader task
                     reader = new Thread(ReaderTask);
                     reader.Start();
-                    //
 
                     /* CM19A initialization strings */
                     Cm19Configuration cfg = new Cm19Configuration();
@@ -333,7 +332,6 @@ namespace CM19Lib
                         cfg = Utility.ReadFromXmlFile<Cm19Configuration>("cm19_config.xml");
                     }
                     catch { }
-                    //WriteToXmlFile("cm19_config.xml", cfg, false);
                     if (cfg.init0 != null && cfg.init0.Length > 0) SendMessage(Utility.StringToByteArray(cfg.init0));
                     if (cfg.init1 != null && cfg.init1.Length > 0) SendMessage(Utility.StringToByteArray(cfg.init1));
                     if (cfg.init2 != null && cfg.init2.Length > 0) SendMessage(Utility.StringToByteArray(cfg.init2));

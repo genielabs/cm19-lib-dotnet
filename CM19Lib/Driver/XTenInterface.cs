@@ -21,7 +21,7 @@
  *     Project Homepage: https://github.com/genielabs/cm19-lib-dotnet
  */
 
-namespace CM19Lib.Drivers
+namespace CM19Lib.Driver
 {
     /// <summary>
     /// X10 driver interface.
@@ -52,4 +52,3 @@ namespace CM19Lib.Drivers
         bool WriteData(byte[] bytesToSend);
     }
 }
-

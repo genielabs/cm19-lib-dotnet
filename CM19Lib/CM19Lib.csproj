@@ -56,15 +56,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Drivers\CM19.cs" />
+    <Compile Include="Driver\CM19.cs" />
     <Compile Include="Events\ConnectionStatusChangedEventArgs.cs" />
     <Compile Include="Events\RfCommandReceivedEventArgs.cs" />
     <Compile Include="Events\RfDataReceivedEventArgs.cs" />
     <Compile Include="Events\RfSecurityReceivedEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Drivers\XTenInterface.cs" />
+    <Compile Include="Driver\XTenInterface.cs" />
     <Compile Include="Utility.cs" />
-    <Compile Include="X10RfManager.cs" />
+    <Compile Include="Cm19Manager.cs" />
     <Compile Include="x10\Command.cs" />
     <Compile Include="x10\HouseCode.cs" />
     <Compile Include="x10\RfCommandType.cs" />
