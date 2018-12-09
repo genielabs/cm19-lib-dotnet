@@ -17,12 +17,7 @@ Features
     - Camera pan/tilt commands (Left, Right, Up, Down)
     - Security sensors (Motion and door/window sensors, security remotes)
 - Event driven
-- Hot plug and automatic re-connection on error
-- Supports both *CM11* and *CM15* hardware
-- Event driven
-- Hot plug
-- Automatically restabilish connection on error/disconnect
-- Compatible with Mono</description>
+- Hot plug and automatic re-connection on error</description>
         <summary>X10 CM19 Transceiver library for Home Automation</summary>
         <releaseNotes></releaseNotes>
         <copyright>G-Labs</copyright>
