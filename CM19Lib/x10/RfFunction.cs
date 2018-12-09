@@ -32,7 +32,7 @@ namespace CM19Lib.X10
         /* Standard 5-byte commands: */
         On = 0x00,
         Off = 0x01,
-        AllLightsOff = 0x80,
+        AllUnitsOff = 0x80,
         AllLightsOn = 0x90,
         Dim = 0x98,
         Bright = 0x88,

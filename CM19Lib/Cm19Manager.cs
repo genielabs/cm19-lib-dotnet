@@ -517,7 +517,7 @@ namespace CM19Lib
                                             UnitCode.UnitNotSet));
                                         break;
                                     case RfFunction.AllLightsOn:
-                                    case RfFunction.AllLightsOff:
+                                    case RfFunction.AllUnitsOff:
                                         if (houseCode != HouseCode.NotSet)
                                         {
                                             logger.Debug("Command {0} HouseCode {1}", hf, houseCode);
