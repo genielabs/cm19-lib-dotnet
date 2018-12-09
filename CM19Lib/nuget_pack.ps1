@@ -1,4 +1,4 @@
-$project = "XTenLib"
+$project = "CM19Lib"
 $root = (split-path -parent $MyInvocation.MyCommand.Definition) + '\..'
 #$version = [System.Reflection.Assembly]::LoadFile("$root\$project\bin\Debug\$project.dll").GetName().Version
 
