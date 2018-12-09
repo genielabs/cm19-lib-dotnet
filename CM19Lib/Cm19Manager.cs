@@ -53,7 +53,7 @@ namespace CM19Lib
         private readonly object commandLock = new object();
 
         // Variables used for preventing duplicated messages coming from RF
-        private const uint MinRfRepeatDelayMs = 500;
+        private const uint MinRfRepeatDelayMs = 100;
         private DateTime lastReceivedTs = DateTime.Now;
         private DateTime lastRfReceivedTs = DateTime.Now;
         private string lastRfMessage = "";
@@ -69,7 +69,6 @@ namespace CM19Lib
 
         private readonly object accessLock = new object();
         private bool disconnectRequested = false;
-        private int minRfRepeatDelayMs = 500;
 
         #endregion
 
@@ -462,9 +461,9 @@ namespace CM19Lib
                             if (isCodeValid)
                             {
                                 if (lastRfMessage == BitConverter.ToString(message) &&
-                                    (DateTime.Now - lastRfReceivedTs).TotalMilliseconds < minRfRepeatDelayMs)
+                                    (DateTime.Now - lastRfReceivedTs).TotalMilliseconds < MinRfRepeatDelayMs)
                                 {
-                                    logger.Warn("Ignoring repeated message within {0}ms", minRfRepeatDelayMs);
+                                    logger.Warn("Ignoring repeated message within {0}ms", MinRfRepeatDelayMs);
                                     continue;
                                 }
                                 lastRfMessage = BitConverter.ToString(message);
