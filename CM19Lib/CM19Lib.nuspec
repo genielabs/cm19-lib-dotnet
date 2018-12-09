@@ -6,8 +6,8 @@
         <title>CM19Lib</title>
         <authors>Generoso Martello</authors>
         <owners>G-Labs</owners>
-        <licenseUrl>https://github.com/genielabs/x10-lib-dotnet/blob/master/LICENSE</licenseUrl>
-        <projectUrl>https://github.com/genielabs/x10-lib-dotnet/</projectUrl>
+        <licenseUrl>https://github.com/genielabs/cm19-lib-dotnet/blob/master/LICENSE</licenseUrl>
+        <projectUrl>https://github.com/genielabs/cm19-lib-dotnet/</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>X10 CM19 Transceiver library for Home Automation
 
