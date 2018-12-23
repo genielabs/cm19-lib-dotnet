@@ -48,7 +48,7 @@ namespace CM19Lib.X10
         public uint SecurityAddress;
         public HouseCode HouseCode = HouseCode.NotSet;
         public UnitCode Unit = UnitCode.UnitNotSet;
-        public Function Command = Function.NotSet;
+        public Function Function = Function.NotSet;
 
         /// <summary>
         /// Parse a raw RF X10 message
@@ -99,7 +99,7 @@ namespace CM19Lib.X10
                 var houseCode = (HouseCode) (message[1] & 0xF0);
                 var command = (Function) (((message[1] & 0xF) << 8) | message[2]);
                 msg.HouseCode = houseCode;
-                msg.Command = command;
+                msg.Function = command;
             }
             else if (isStandardCode)
             {
@@ -116,7 +116,7 @@ namespace CM19Lib.X10
                 var houseCode = (HouseCode) (message[1] & 0xF0);
                 //Enum.TryParse<HouseCode>((Utility.ReverseByte((byte) (hu >> 4)) >> 4).ToString(), out houseCode);
                 msg.HouseCode = houseCode;
-                msg.Command = hf;
+                msg.Function = hf;
                 switch (hf)
                 {
                     case Function.Dim:
@@ -137,7 +137,7 @@ namespace CM19Lib.X10
                                          2) + 1).ToString();
                         // Parse module function
                         var fn = (unitFunction[2] == '1' ? Function.Off : Function.On);
-                        msg.Command = fn;
+                        msg.Function = fn;
                         switch (fn)
                         {
                             case Function.On:

@@ -481,24 +481,24 @@ namespace CM19Lib
                                 }
                                 break;
                             case RfMessageType.Camera:
-                                OnRfCameraReceived(new RfCommandReceivedEventArgs(message.Command, message.HouseCode,
+                                OnRfCameraReceived(new RfCommandReceivedEventArgs(message.Function, message.HouseCode,
                                     UnitCode.Unit_1));
                                 break;
                             case RfMessageType.Standard:
-                                switch (message.Command)
+                                switch (message.Function)
                                 {
                                     case Function.Dim:
                                     case Function.Bright:
-                                        logger.Debug("Command {0} HouseCode {1}", message.Command, message.HouseCode);
-                                        OnRfCommandReceived(new RfCommandReceivedEventArgs(message.Command,
+                                        logger.Debug("Function {0} HouseCode {1}", message.Function, message.HouseCode);
+                                        OnRfCommandReceived(new RfCommandReceivedEventArgs(message.Function,
                                             message.HouseCode, UnitCode.UnitNotSet));
                                         break;
                                     case Function.AllLightsOn:
                                     case Function.AllUnitsOff:
                                         if (message.HouseCode != HouseCode.NotSet)
                                         {
-                                            logger.Debug("Command {0} HouseCode {1}", message.Command, message.HouseCode);
-                                            OnRfCommandReceived(new RfCommandReceivedEventArgs(message.Command,
+                                            logger.Debug("Function {0} HouseCode {1}", message.Function, message.HouseCode);
+                                            OnRfCommandReceived(new RfCommandReceivedEventArgs(message.Function,
                                                 message.HouseCode, UnitCode.UnitNotSet));
                                         }
                                         break;
@@ -506,17 +506,17 @@ namespace CM19Lib
                                         logger.Warn("Unable to decode function value");
                                         break;
                                     default:
-                                        switch (message.Command)
+                                        switch (message.Function)
                                         {
                                             case Function.On:
                                             case Function.Off:
                                                 if (message.Unit != UnitCode.UnitNotSet)
                                                 {
-                                                    logger.Debug("Command {0} HouseCode {1} UnitCode {2}",
-                                                        message.Command,
+                                                    logger.Debug("Function {0} HouseCode {1} UnitCode {2}",
+                                                        message.Function,
                                                         message.HouseCode, message.Unit.ToString().Replace("Unit_", ""));
                                                     OnRfCommandReceived(
-                                                        new RfCommandReceivedEventArgs(message.Command,
+                                                        new RfCommandReceivedEventArgs(message.Function,
                                                             message.HouseCode, message.Unit));
                                                 }
                                                 else
