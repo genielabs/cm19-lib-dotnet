@@ -48,7 +48,7 @@ namespace CM19Lib.X10
         public uint SecurityAddress;
         public HouseCode HouseCode = HouseCode.NotSet;
         public UnitCode Unit = UnitCode.UnitNotSet;
-        public RfFunction Command = RfFunction.NotSet;
+        public Function Command = Function.NotSet;
 
         /// <summary>
         /// Parse a raw RF X10 message
@@ -97,7 +97,7 @@ namespace CM19Lib.X10
             else if (isCameraCode)
             {
                 var houseCode = (HouseCode) (message[1] & 0xF0);
-                var command = (RfFunction) (((message[1] & 0xF) << 8) | message[2]);
+                var command = (Function) (((message[1] & 0xF) << 8) | message[2]);
                 msg.HouseCode = houseCode;
                 msg.Command = command;
             }
@@ -108,8 +108,8 @@ namespace CM19Lib.X10
                 // unit code (3 bits) + function code
 
                 // Parse function code
-                var hf = RfFunction.NotSet;
-                Enum.TryParse<RfFunction>(message[3].ToString(), out hf);
+                var hf = Function.NotSet;
+                Enum.TryParse<Function>(message[3].ToString(), out hf);
                 // House code (4bit) + unit code (4bit)
                 byte hu = message[1];
                 // Parse house code
@@ -119,13 +119,13 @@ namespace CM19Lib.X10
                 msg.Command = hf;
                 switch (hf)
                 {
-                    case RfFunction.Dim:
-                    case RfFunction.Bright:
+                    case Function.Dim:
+                    case Function.Bright:
                         break;
-                    case RfFunction.AllLightsOn:
-                    case RfFunction.AllUnitsOff:
+                    case Function.AllLightsOn:
+                    case Function.AllUnitsOff:
                         break;
-                    case RfFunction.NotSet:
+                    case Function.NotSet:
                         break;
                     default:
                         // Parse unit code
@@ -136,13 +136,12 @@ namespace CM19Lib.X10
                                          unitFunction.Substring(4, 1) + unitFunction.Substring(3, 1),
                                          2) + 1).ToString();
                         // Parse module function
-                        var fn = RfFunction.NotSet;
-                        Enum.TryParse<RfFunction>(unitFunction[2].ToString(), out fn);
+                        var fn = (unitFunction[2] == '1' ? Function.Off : Function.On);
                         msg.Command = fn;
                         switch (fn)
                         {
-                            case RfFunction.On:
-                            case RfFunction.Off:
+                            case Function.On:
+                            case Function.Off:
                                 var unitCode = UnitCode.UnitNotSet;
                                 Enum.TryParse<UnitCode>("Unit_" + uc.ToString(), out unitCode);
                                 msg.Unit = unitCode;

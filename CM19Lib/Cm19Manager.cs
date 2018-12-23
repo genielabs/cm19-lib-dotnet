@@ -487,14 +487,14 @@ namespace CM19Lib
                             case RfMessageType.Standard:
                                 switch (message.Command)
                                 {
-                                    case RfFunction.Dim:
-                                    case RfFunction.Bright:
+                                    case Function.Dim:
+                                    case Function.Bright:
                                         logger.Debug("Command {0} HouseCode {1}", message.Command, message.HouseCode);
                                         OnRfCommandReceived(new RfCommandReceivedEventArgs(message.Command,
                                             message.HouseCode, UnitCode.UnitNotSet));
                                         break;
-                                    case RfFunction.AllLightsOn:
-                                    case RfFunction.AllUnitsOff:
+                                    case Function.AllLightsOn:
+                                    case Function.AllUnitsOff:
                                         if (message.HouseCode != HouseCode.NotSet)
                                         {
                                             logger.Debug("Command {0} HouseCode {1}", message.Command, message.HouseCode);
@@ -502,14 +502,14 @@ namespace CM19Lib
                                                 message.HouseCode, UnitCode.UnitNotSet));
                                         }
                                         break;
-                                    case RfFunction.NotSet:
+                                    case Function.NotSet:
                                         logger.Warn("Unable to decode function value");
                                         break;
                                     default:
                                         switch (message.Command)
                                         {
-                                            case RfFunction.On:
-                                            case RfFunction.Off:
+                                            case Function.On:
+                                            case Function.Off:
                                                 if (message.Unit != UnitCode.UnitNotSet)
                                                 {
                                                     logger.Debug("Command {0} HouseCode {1} UnitCode {2}",

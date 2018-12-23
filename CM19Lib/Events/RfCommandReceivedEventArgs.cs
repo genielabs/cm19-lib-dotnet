@@ -33,7 +33,7 @@ namespace CM19Lib.Events
         /// <summary>
         /// The command.
         /// </summary>
-        public readonly RfFunction Command;
+        public readonly Function Command;
         /// <summary>
         /// The house code.
         /// </summary>
@@ -49,7 +49,7 @@ namespace CM19Lib.Events
         /// <param name="function">Function.</param>
         /// <param name="housecode">Housecode.</param>
         /// <param name="unitcode">Unitcode.</param>
-        public RfCommandReceivedEventArgs(RfFunction function, HouseCode housecode, UnitCode unitcode)
+        public RfCommandReceivedEventArgs(Function function, HouseCode housecode, UnitCode unitcode)
         {
             Command = function;
             HouseCode = housecode;
