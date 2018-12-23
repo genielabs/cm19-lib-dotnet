@@ -74,7 +74,7 @@ namespace cm19send
         {
             HouseCode houseCode = HouseCode.NotSet;
             UnitCode unitCode = UnitCode.UnitNotSet;
-            Command command = Command.NotSet;
+            Function function = Function.NotSet;
             bool isCameraCommand = false;
             for (int i = 0; i < commands.Length; i++)
             {
@@ -91,10 +91,10 @@ namespace cm19send
                         switch (cmd[1])
                         {
                             case '+':
-                                command = Command.Bright;
+                                function = Function.Bright;
                                 break;
                             case '-':
-                                command = Command.Dim;
+                                function = Function.Dim;
                                 break;
                         }
                     }
@@ -104,16 +104,16 @@ namespace cm19send
                         switch (cmd[1])
                         {
                             case 'U':
-                                command = Command.CameraUp;
+                                function = Function.CameraUp;
                                 break;
                             case 'D':
-                                command = Command.CameraDown;
+                                function = Function.CameraDown;
                                 break;
                             case 'L':
-                                command = Command.CameraLeft;
+                                function = Function.CameraLeft;
                                 break;
                             case 'R':
-                                command = Command.CameraRight;
+                                function = Function.CameraRight;
                                 break;
                         }
                     }
@@ -133,10 +133,10 @@ namespace cm19send
                     switch (cmd[cmd.Length-1])
                     {
                         case '+':
-                            command = Command.On;
+                            function = Function.On;
                             break;
                         case '-':
-                            command = Command.Off;
+                            function = Function.Off;
                             break;
                         default:
                             Console.WriteLine("Invalid command.");
@@ -145,14 +145,14 @@ namespace cm19send
                 }
                 if (isCameraCommand)
                 {
-                    Console.WriteLine("Sending X10 camera command '{0}' HouseCode '{1}'", command, houseCode);
-                    cm19.SendCameraCommand(houseCode, command);
+                    Console.WriteLine(">> camera command\n   [ Function '{0}' HouseCode '{1}' ]", function, houseCode);
+                    cm19.SendCameraCommand(houseCode, function);
                     isCameraCommand = false;
                 }
                 else
                 {
-                    Console.WriteLine("Sending X10 command '{0}' HouseCode '{1}' Unit '{2}'", command, houseCode, unitCode);
-                    cm19.SendCommand(houseCode, unitCode, command);
+                    Console.WriteLine(">> standard command\n   [ Function '{0}' HouseCode '{1}' Unit '{2}' ]", function, houseCode, unitCode);
+                    cm19.SendCommand(houseCode, unitCode, function);
                 }
                 // pause 1 second between each command
                 if (i < commands.Length - 1) Thread.Sleep(1000);

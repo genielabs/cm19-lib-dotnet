@@ -25,7 +25,7 @@
 
 namespace CM19Lib.X10
 {
-    public enum Command : int
+    public enum Function : int
     {
         /* Standard 5-byte commands: */
         On = 0x00,

@@ -108,13 +108,15 @@ namespace CM19Lib.Driver
                     wholeUsbDevice.SetAltInterface(0);
                 }
 
+                /*
                 Console.WriteLine(myUsbDevice.Info.ProductString);
                 int eps = myUsbDevice.ActiveEndpoints.Count;
                 for (int i = 0; i < eps; i++)
                 {
                     Console.WriteLine("{0}:{1}", i, myUsbDevice.ActiveEndpoints[i].Type);
                 }
-
+                */
+                
                 // open read endpoint 1.
                 reader = myUsbDevice.OpenEndpointReader(ReadEndpointID.Ep01);
                 // open write endpoint 2.

@@ -50,11 +50,9 @@ namespace CM19Lib
 
         // I/O operation lock / monitor
         private readonly object waitAckMonitor = new object();
-        private readonly object commandLock = new object();
 
         // Variables used for preventing duplicated messages coming from RF
         private const uint MinRfRepeatDelayMs = 100;
-        private DateTime lastReceivedTs = DateTime.Now;
         private DateTime lastRfReceivedTs = DateTime.Now;
         private string lastRfMessage = "";
 
@@ -118,7 +116,7 @@ namespace CM19Lib
         /// Occurs when x10 PT camera command is received.
         /// </summary>
         public event X10CommandReceivedEventHandler RfCameraReceived;
-        
+
         #endregion
 
         #region Instance Management
@@ -207,7 +205,7 @@ namespace CM19Lib
         /// <param name="houseCode">House code.</param>
         public void Dim(HouseCode houseCode)
         {
-            SendCommand(houseCode, 0x00, Command.Dim);
+            SendCommand(houseCode, 0x00, Function.Dim);
         }
 
         /// <summary>
@@ -216,7 +214,7 @@ namespace CM19Lib
         /// <param name="houseCode">House code.</param>
         public void Bright(HouseCode houseCode)
         {
-            SendCommand(houseCode, 0x00, Command.Bright);
+            SendCommand(houseCode, 0x00, Function.Bright);
         }
 
         /// <summary>
@@ -226,7 +224,7 @@ namespace CM19Lib
         /// <param name="unitCode">Unit code.</param>
         public void UnitOn(HouseCode houseCode, UnitCode unitCode)
         {
-            SendCommand(houseCode, unitCode, Command.On);
+            SendCommand(houseCode, unitCode, Function.On);
         }
 
         /// <summary>
@@ -236,7 +234,7 @@ namespace CM19Lib
         /// <param name="unitCode">Unit code.</param>
         public void UnitOff(HouseCode houseCode, UnitCode unitCode)
         {
-            SendCommand(houseCode, unitCode, Command.Off);
+            SendCommand(houseCode, unitCode, Function.Off);
         }
 
         /// <summary>
@@ -245,7 +243,7 @@ namespace CM19Lib
         /// <param name="houseCode">House code.</param>
         public void AllLightsOn(HouseCode houseCode)
         {
-            SendCommand(houseCode, 0x00, Command.AllLightsOn);
+            SendCommand(houseCode, 0x00, Function.AllLightsOn);
         }
 
         /// <summary>
@@ -254,24 +252,24 @@ namespace CM19Lib
         /// <param name="houseCode">House code.</param>
         public void AllUnitsOff(HouseCode houseCode)
         {
-            SendCommand(houseCode, 0x00, Command.AllUnitsOff);
+            SendCommand(houseCode, 0x00, Function.AllUnitsOff);
         }
 
         /// <summary>
         /// Sends a Camera command.
         /// </summary>
         /// <param name="houseCode">House code.</param>
-        /// <param name="command">Camera command.</param>
+        /// <param name="function">Camera command.</param>
         /// <returns></returns>
-        public bool SendCameraCommand(HouseCode houseCode, Command command)
+        public bool SendCameraCommand(HouseCode houseCode, Function function)
         {
             try
             {
                 SendMessage(new[]
                 {
-                    (byte) RfCommandType.Camera,
-                    (byte) (((int)command >> 8) | Utility.HouseCodeToCamera(houseCode)),
-                    (byte) ((int)command & 0xFF),
+                    (byte) RfMessageType.Camera,
+                    (byte) (((int) function >> 8) | Utility.HouseCodeToCamera(houseCode)),
+                    (byte) ((int) function & 0xFF),
                     (byte) houseCode
                 });
             }
@@ -282,23 +280,23 @@ namespace CM19Lib
             }
             return true;
         }
-        
+
         /// <summary>
         /// Turn off the specified module (houseCode, unitCode).
         /// </summary>
         /// <param name="houseCode">House code.</param>
         /// <param name="unitCode">Unit code.</param>
-        /// <param name="command">X10 command.</param>
+        /// <param name="function">X10 command.</param>
         /// <returns>`true' on success, `false` otherwise.</returns>
-        public bool SendCommand(HouseCode houseCode, UnitCode unitCode, Command command)
+        public bool SendCommand(HouseCode houseCode, UnitCode unitCode, Function function)
         {
             int hu = ((int) unitCode >> 8) | (int) houseCode;
-            int hc = ((int) unitCode & 0xFF) | (int) command;
+            int hc = ((int) unitCode & 0xFF) | (int) function;
             try
             {
                 SendMessage(new[]
                 {
-                    (byte) RfCommandType.Standard,
+                    (byte) RfMessageType.Standard,
                     (byte) hu,
                     (byte) ~hu,
                     (byte) hc,
@@ -330,10 +328,12 @@ namespace CM19Lib
             /// Init 0
             /// </summary>
             public string init0 = "00";
+
             /// <summary>
             /// Init 1
             /// </summary>
             public string init1 = "80-01-00-20-14-24-29-20";
+
             /// <summary>
             /// Init 2
             /// </summary>
@@ -361,7 +361,9 @@ namespace CM19Lib
                     {
                         cfg = Utility.ReadFromXmlFile<Cm19Configuration>("cm19_config.xml");
                     }
-                    catch { }
+                    catch
+                    {
+                    }
                     if (cfg.init0 != null && cfg.init0.Length > 0) SendMessage(Utility.StringToByteArray(cfg.init0));
                     if (cfg.init1 != null && cfg.init1.Length > 0) SendMessage(Utility.StringToByteArray(cfg.init1));
                     if (cfg.init2 != null && cfg.init2.Length > 0) SendMessage(Utility.StringToByteArray(cfg.init2));
@@ -444,112 +446,78 @@ namespace CM19Lib
                     else if (readData.Length > 1)
                     {
                         logger.Debug(BitConverter.ToString(readData));
+
+                        // Decode x10 binary data
+                        var message = RfMessage.Decode(readData);
+
+                        // Repeated messages check
+                        if (message.MessageType != RfMessageType.NotSet)
                         {
-                            lastReceivedTs = DateTime.Now;
-                            byte[] message = readData;
-                            bool isSecurityCode = (message[0] == (byte)RfCommandType.Security) && 
-                                                  (message.Length == 7 && ((message[2] ^ message[1]) == 0x0F) &&
-                                                   ((message[4] ^ message[3]) == 0xFF));
-                            bool isCameraCode = (message[0] == (byte) RfCommandType.Security);
-                            bool isStandardCode = (message[0] == (byte) RfCommandType.Standard) &&
-                                                  (message.Length == 5 &&
-                                                   ((message[2] & ~message[1]) == message[2] &&
-                                                    (message[4] & ~message[3]) == message[4]));
-                            bool isCodeValid = isStandardCode || isCameraCode || isSecurityCode;                            
-
-                            // Repeated messages check
-                            if (isCodeValid)
+                            if (lastRfMessage == BitConverter.ToString(readData) &&
+                                (DateTime.Now - lastRfReceivedTs).TotalMilliseconds < MinRfRepeatDelayMs)
                             {
-                                if (lastRfMessage == BitConverter.ToString(message) &&
-                                    (DateTime.Now - lastRfReceivedTs).TotalMilliseconds < MinRfRepeatDelayMs)
-                                {
-                                    logger.Warn("Ignoring repeated message within {0}ms", MinRfRepeatDelayMs);
-                                    continue;
-                                }
-                                lastRfMessage = BitConverter.ToString(message);
-                                lastRfReceivedTs = DateTime.Now;
+                                logger.Warn("Ignoring repeated message within {0}ms", MinRfRepeatDelayMs);
+                                continue;
                             }
+                            lastRfMessage = BitConverter.ToString(readData);
+                            lastRfReceivedTs = DateTime.Now;
+                        }
 
-                            OnRfDataReceived(new RfDataReceivedEventArgs(message));
+                        OnRfDataReceived(new RfDataReceivedEventArgs(readData));
 
-                            if (isSecurityCode)
-                            {
-                                var securityEvent = RfSecurityEvent.NotSet;
-                                Enum.TryParse<RfSecurityEvent>(message[3].ToString(), out securityEvent);
-                                uint securityAddress = message[1];
-                                if (securityEvent != RfSecurityEvent.NotSet)
+                        switch (message.MessageType)
+                        {
+                            case RfMessageType.Security:
+                                if (message.SecurityEvent != RfSecurityEvent.NotSet)
                                 {
-                                    logger.Debug("Security Event {0} Address {1}", securityEvent, securityAddress);
-                                    OnRfSecurityReceived(new RfSecurityReceivedEventArgs(securityEvent, securityAddress));
+                                    logger.Debug("Security Event {0} Address {1}", message.SecurityEvent,
+                                        message.SecurityAddress);
+                                    OnRfSecurityReceived(new RfSecurityReceivedEventArgs(message.SecurityEvent,
+                                        message.SecurityAddress));
                                 }
                                 else
                                 {
                                     logger.Warn("Could not parse security event");
                                 }
-                            }
-                            else if (isCameraCode)
-                            {
-                                var houseCode = (HouseCode) (message[1] & 0xF0);
-                                var command = (RfFunction)(((message[1] & 0xF) << 8) | message[2]);
-                                OnRfCameraReceived(new RfCommandReceivedEventArgs(command, houseCode, UnitCode.Unit_1));
-                            }
-                            else if (isStandardCode)
-                            {
-                                // Decode received 32 bit message
-                                // house code + 4th bit of unit code
-                                // unit code (3 bits) + function code
-
-                                // Parse function code
-                                var hf = RfFunction.NotSet;
-                                Enum.TryParse<RfFunction>(message[3].ToString(), out hf);
-                                // House code (4bit) + unit code (4bit)
-                                byte hu = message[1];
-                                // Parse house code
-                                var houseCode = (HouseCode) (message[1] & 0xF0);
-                                //Enum.TryParse<HouseCode>((Utility.ReverseByte((byte) (hu >> 4)) >> 4).ToString(), out houseCode);
-                                switch (hf)
+                                break;
+                            case RfMessageType.Camera:
+                                OnRfCameraReceived(new RfCommandReceivedEventArgs(message.Command, message.HouseCode,
+                                    UnitCode.Unit_1));
+                                break;
+                            case RfMessageType.Standard:
+                                switch (message.Command)
                                 {
                                     case RfFunction.Dim:
                                     case RfFunction.Bright:
-                                        logger.Debug("Command {0} HouseCode {1}", hf, houseCode);
-                                        OnRfCommandReceived(new RfCommandReceivedEventArgs(hf, houseCode,
-                                            UnitCode.UnitNotSet));
+                                        logger.Debug("Command {0} HouseCode {1}", message.Command, message.HouseCode);
+                                        OnRfCommandReceived(new RfCommandReceivedEventArgs(message.Command,
+                                            message.HouseCode, UnitCode.UnitNotSet));
                                         break;
                                     case RfFunction.AllLightsOn:
                                     case RfFunction.AllUnitsOff:
-                                        if (houseCode != HouseCode.NotSet)
+                                        if (message.HouseCode != HouseCode.NotSet)
                                         {
-                                            logger.Debug("Command {0} HouseCode {1}", hf, houseCode);
-                                            OnRfCommandReceived(new RfCommandReceivedEventArgs(hf, houseCode,
-                                                UnitCode.UnitNotSet));
+                                            logger.Debug("Command {0} HouseCode {1}", message.Command, message.HouseCode);
+                                            OnRfCommandReceived(new RfCommandReceivedEventArgs(message.Command,
+                                                message.HouseCode, UnitCode.UnitNotSet));
                                         }
                                         break;
                                     case RfFunction.NotSet:
                                         logger.Warn("Unable to decode function value");
                                         break;
                                     default:
-                                        // Parse unit code
-                                        string houseUnit = Convert.ToString(hu, 2).PadLeft(8, '0');
-                                        string unitFunction = Convert.ToString(message[3], 2).PadLeft(8, '0');
-                                        string uc = (Convert.ToInt16(
-                                                         houseUnit.Substring(5, 1) + unitFunction.Substring(1, 1) +
-                                                         unitFunction.Substring(4, 1) + unitFunction.Substring(3, 1),
-                                                         2) + 1).ToString();
-                                        // Parse module function
-                                        var fn = RfFunction.NotSet;
-                                        Enum.TryParse<RfFunction>(unitFunction[2].ToString(), out fn);
-                                        switch (fn)
+                                        switch (message.Command)
                                         {
                                             case RfFunction.On:
                                             case RfFunction.Off:
-                                                var unitCode = UnitCode.UnitNotSet;
-                                                Enum.TryParse<UnitCode>("Unit_"+uc.ToString(), out unitCode);
-                                                if (unitCode != UnitCode.UnitNotSet)
+                                                if (message.Unit != UnitCode.UnitNotSet)
                                                 {
-                                                    logger.Debug("Command {0} HouseCode {1} UnitCode {2}", fn,
-                                                        houseCode, unitCode.ToString().Replace("Unit_", ""));
+                                                    logger.Debug("Command {0} HouseCode {1} UnitCode {2}",
+                                                        message.Command,
+                                                        message.HouseCode, message.Unit.ToString().Replace("Unit_", ""));
                                                     OnRfCommandReceived(
-                                                        new RfCommandReceivedEventArgs(fn, houseCode, unitCode));
+                                                        new RfCommandReceivedEventArgs(message.Command,
+                                                            message.HouseCode, message.Unit));
                                                 }
                                                 else
                                                 {
@@ -559,12 +527,11 @@ namespace CM19Lib
                                         }
                                         break;
                                 }
-                            }
-                            else
-                            {
-                                logger.Warn("Bad message received");
-                            }
 
+                                break;
+                            default:
+                                logger.Warn("Bad message received");
+                                break;
                         }
                     }
                 }

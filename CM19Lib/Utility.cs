@@ -227,13 +227,15 @@ namespace CM19Lib
         /// </summary>
         /// <param name="hex">Hex bytes</param>
         /// <returns></returns>
-        public static byte[] StringToByteArray(String hex)
+        public static byte[] StringToByteArray(string hex)
         {
-            hex = hex.Replace("-", "");
-            int NumberChars = hex.Length;
-            byte[] bytes = new byte[NumberChars / 2];
-            for (int i = 0; i < NumberChars; i += 2)
-                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+            hex = hex.Replace("-", "").Replace(" ", "");
+            int len = hex.Length / 2;
+            byte[] bytes = new byte[len];
+            for (int i = 0; i < len; i++)
+            {
+                bytes[i] = Convert.ToByte(hex.Substring(i * 2, 2), 16);
+            }
             return bytes;
         }
 
@@ -261,6 +263,7 @@ namespace CM19Lib
         }
 
     }
+
 }
 
 #pragma warning restore 1591

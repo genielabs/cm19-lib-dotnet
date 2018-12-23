@@ -54,9 +54,9 @@
     <Compile Include="Driver\XTenInterface.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="Cm19Manager.cs" />
-    <Compile Include="x10\Command.cs" />
+    <Compile Include="x10\Function.cs" />
     <Compile Include="x10\HouseCode.cs" />
-    <Compile Include="x10\RfCommandType.cs" />
+    <Compile Include="x10\RfMessage.cs" />
     <Compile Include="x10\RfFunction.cs" />
     <Compile Include="x10\RfSecurityEvent.cs" />
     <Compile Include="x10\UnitCode.cs" />
