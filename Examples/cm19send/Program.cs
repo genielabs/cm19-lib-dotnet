@@ -72,90 +72,29 @@ namespace cm19send
 
         private static void sendCommands(Cm19Manager cm19)
         {
-            HouseCode houseCode = HouseCode.NotSet;
-            UnitCode unitCode = UnitCode.UnitNotSet;
-            Function function = Function.NotSet;
-            bool isCameraCommand = false;
             for (int i = 0; i < commands.Length; i++)
             {
-                string cmd = commands[i].ToUpper();
-                if (cmd.Length == 2)
+                string cmd = commands[i];
+                try
                 {
-                    if (!Enum.TryParse(cmd[0].ToString(), out houseCode))
+                    var message = RfMessage.Parse(cmd);
+                    if (message.MessageType == RfMessageType.Camera)
                     {
-                        Console.WriteLine("Invalid house code.");
-                        return;
-                    }
-                    if (cmd[1] == '+' || cmd[1] == '-')
-                    {
-                        switch (cmd[1])
-                        {
-                            case '+':
-                                function = Function.Bright;
-                                break;
-                            case '-':
-                                function = Function.Dim;
-                                break;
-                        }
+                        Console.WriteLine(">> camera command\n   [ Function '{0}' HouseCode '{1}' ]", message.Function, message.HouseCode);
+                        cm19.SendCameraCommand(message.HouseCode, message.Function);
                     }
                     else
                     {
-                        isCameraCommand = true;
-                        switch (cmd[1])
-                        {
-                            case 'U':
-                                function = Function.CameraUp;
-                                break;
-                            case 'D':
-                                function = Function.CameraDown;
-                                break;
-                            case 'L':
-                                function = Function.CameraLeft;
-                                break;
-                            case 'R':
-                                function = Function.CameraRight;
-                                break;
-                        }
+                        Console.WriteLine(">> standard command\n   [ Function '{0}' HouseCode '{1}' Unit '{2}' ]", message.Function, message.HouseCode, message.Unit);
+                        cm19.SendCommand(message.HouseCode, message.Unit, message.Function);
                     }
+                    // pause 1 second between each command
+                    if (i < commands.Length - 1) Thread.Sleep(1000);
                 }
-                else if (cmd.Length > 2)
+                catch (Exception e)
                 {
-                    if (!Enum.TryParse(cmd[0].ToString(), out houseCode))
-                    {
-                        Console.WriteLine("Invalid house code.");
-                        return;
-                    }
-                    if (!Enum.TryParse("Unit_"+cmd.Substring(1, cmd.Length - 2), out unitCode))
-                    {
-                        Console.WriteLine("Invalid unit number.");
-                        return;
-                    }
-                    switch (cmd[cmd.Length-1])
-                    {
-                        case '+':
-                            function = Function.On;
-                            break;
-                        case '-':
-                            function = Function.Off;
-                            break;
-                        default:
-                            Console.WriteLine("Invalid command.");
-                            return;
-                    }
+                    Console.WriteLine("!! error '{0}': {1}", cmd, e.Message);
                 }
-                if (isCameraCommand)
-                {
-                    Console.WriteLine(">> camera command\n   [ Function '{0}' HouseCode '{1}' ]", function, houseCode);
-                    cm19.SendCameraCommand(houseCode, function);
-                    isCameraCommand = false;
-                }
-                else
-                {
-                    Console.WriteLine(">> standard command\n   [ Function '{0}' HouseCode '{1}' Unit '{2}' ]", function, houseCode, unitCode);
-                    cm19.SendCommand(houseCode, unitCode, function);
-                }
-                // pause 1 second between each command
-                if (i < commands.Length - 1) Thread.Sleep(1000);
             }
         }
     }

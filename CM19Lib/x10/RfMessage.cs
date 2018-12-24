@@ -24,10 +24,10 @@
 #pragma warning disable 1591
 
 using System;
+using System.ComponentModel;
 
 namespace CM19Lib.X10
 {
-
     public enum RfMessageType
     {
         NotSet = 0xFF,
@@ -154,8 +154,144 @@ namespace CM19Lib.X10
             return msg;
         }
 
-    }
+        /// <summary>
+        /// Get X10 raw bytes from a given X10 command.
+        /// </summary>
+        /// <param name="houseCode"></param>
+        /// <param name="unitCode"></param>
+        /// <param name="function"></param>
+        /// <returns></returns>
+        public static byte[] GetStandardMessage(HouseCode houseCode, UnitCode unitCode, Function function)
+        {
+            int hu = ((int) unitCode >> 8) | (int) houseCode;
+            int hc = ((int) unitCode & 0xFF) | (int) function;
+            return new[]
+            {
+                (byte) RfMessageType.Standard,
+                (byte) hu,
+                (byte) ~hu,
+                (byte) hc,
+                (byte) ~hc
+            };
+        }
 
+        /// <summary>
+        /// Get X10 raw bytes from a given command
+        /// </summary>
+        /// <param name="houseCode">The house code.</param>
+        /// <param name="function">The X10 camera function</param>
+        /// <returns></returns>
+        public static byte[] GetCameraMessage(HouseCode houseCode, Function function)
+        {
+            if (function < Function.CameraLeft || function > Function.CameraDown)
+            {
+                throw new InvalidEnumArgumentException("Invalid X10 camera function.");
+            }
+            return new[]
+            {
+                (byte) RfMessageType.Camera,
+                (byte) (((int) function >> 8) | Utility.HouseCodeToCamera(houseCode)),
+                (byte) ((int) function & 0xFF),
+                (byte) houseCode
+            };
+        }
+
+        /// <summary>
+        /// Parse x10 command from a human-readable string.
+        /// Eg. A1+ for A1 ON or A1- for A1 OFF
+        ///     A- for A DIM and A+ for A BRIGHT
+        ///     AU for camera A UP or AL for camera A LEFT
+        ///     CD for camera C DOWN or ER for camera E RIGHT
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static RfMessage Parse(string cmd)
+        {
+            HouseCode houseCode = HouseCode.NotSet;
+            UnitCode unitCode = UnitCode.UnitNotSet;
+            Function function = Function.NotSet;
+            bool isCameraCommand = false;
+            cmd = cmd.ToUpper();
+            if (cmd.Length == 2)
+            {
+                if (!Enum.TryParse(cmd[0].ToString(), out houseCode))
+                {
+                    throw new InvalidOperationException("Invalid house code.");
+                }
+                if (cmd[1] == '+' || cmd[1] == '-')
+                {
+                    unitCode = UnitCode.Unit_1; // Use "Unit_1" for all commands that do not use the unitCode parameter
+                    switch (cmd[1])
+                    {
+                        case '+':
+                            function = Function.Bright;
+                            break;
+                        case '-':
+                            function = Function.Dim;
+                            break;
+                    }
+                }
+                else
+                {
+                    isCameraCommand = true;
+                    switch (cmd[1])
+                    {
+                        case 'U':
+                            function = Function.CameraUp;
+                            break;
+                        case 'D':
+                            function = Function.CameraDown;
+                            break;
+                        case 'L':
+                            function = Function.CameraLeft;
+                            break;
+                        case 'R':
+                            function = Function.CameraRight;
+                            break;
+                    }
+                }
+            }
+            else if (cmd.Length > 2)
+            {
+                if (!Enum.TryParse(cmd[0].ToString(), out houseCode))
+                {
+                    throw new InvalidOperationException("Invalid house code.");
+                }
+                if (!Enum.TryParse("Unit_" + cmd.Substring(1, cmd.Length - 2), out unitCode))
+                {
+                    throw new InvalidOperationException("Invalid unit number.");
+                }
+                switch (cmd[cmd.Length - 1])
+                {
+                    case '+':
+                        function = Function.On;
+                        break;
+                    case '-':
+                        function = Function.Off;
+                        break;
+                    default:
+                        throw new InvalidOperationException("Invalid command.");
+                }
+            }
+            if (isCameraCommand)
+            {
+                return new RfMessage()
+                {
+                    MessageType = RfMessageType.Camera,
+                    HouseCode = houseCode,
+                    Function = function
+                };
+            }
+            return new RfMessage()
+            {
+                MessageType = RfMessageType.Standard,
+                HouseCode = houseCode,
+                Unit = unitCode,
+                Function = function
+            };
+        }
+    }
 }
 
 #pragma warning restore 1591

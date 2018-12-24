@@ -22,6 +22,7 @@
  */
 
 using System;
+using System.ComponentModel;
 using System.Threading;
 
 using CM19Lib.Driver;
@@ -265,13 +266,7 @@ namespace CM19Lib
         {
             try
             {
-                SendMessage(new[]
-                {
-                    (byte) RfMessageType.Camera,
-                    (byte) (((int) function >> 8) | Utility.HouseCodeToCamera(houseCode)),
-                    (byte) ((int) function & 0xFF),
-                    (byte) houseCode
-                });
+                SendMessage(RfMessage.GetCameraMessage(houseCode, function));
             }
             catch (Exception e)
             {
@@ -290,18 +285,9 @@ namespace CM19Lib
         /// <returns>`true' on success, `false` otherwise.</returns>
         public bool SendCommand(HouseCode houseCode, UnitCode unitCode, Function function)
         {
-            int hu = ((int) unitCode >> 8) | (int) houseCode;
-            int hc = ((int) unitCode & 0xFF) | (int) function;
             try
             {
-                SendMessage(new[]
-                {
-                    (byte) RfMessageType.Standard,
-                    (byte) hu,
-                    (byte) ~hu,
-                    (byte) hc,
-                    (byte) ~hc
-                });
+                SendMessage(RfMessage.GetStandardMessage(houseCode, unitCode, function));
             }
             catch (Exception e)
             {
