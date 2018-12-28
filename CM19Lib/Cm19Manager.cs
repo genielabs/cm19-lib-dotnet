@@ -43,17 +43,16 @@ namespace CM19Lib
         internal static Logger logger = LogManager.GetCurrentClassLogger();
 
         // X10 objects and configuration
-        private const double X10DimmingStep = (100D / 224D);
         private XTenInterface x10Interface;
 
         // State variables
-        private bool isInterfaceReady = false;
+        private bool isInterfaceReady;
 
         // I/O operation lock / monitor
         private readonly object waitAckMonitor = new object();
 
         // Variables used for preventing duplicated messages coming from RF
-        private const uint MinRfRepeatDelayMs = 100;
+        private DateTime firstRfReceivedTs = DateTime.Now;
         private DateTime lastRfReceivedTs = DateTime.Now;
         private string lastRfMessage = "";
 
@@ -67,7 +66,7 @@ namespace CM19Lib
         private Thread connectionWatcher;
 
         private readonly object accessLock = new object();
-        private bool disconnectRequested = false;
+        private bool disconnectRequested;
 
         #endregion
 
@@ -204,6 +203,10 @@ namespace CM19Lib
         /// Pause between each RF message sent (default: 40ms).
         /// </summary>
         public static int SendPauseMs = 40;
+        /// <summary>
+        /// Min delay between subsequent identical messages in order to be considered repeated rather than a new one
+        /// </summary>
+        public static uint MinRfRepeatDelayMs = 300;
 
         #endregion
 
@@ -454,14 +457,23 @@ namespace CM19Lib
                         // Repeated messages check
                         if (message.MessageType != RfMessageType.NotSet)
                         {
-                            if (lastRfMessage == BitConverter.ToString(readData) &&
-                                (DateTime.Now - lastRfReceivedTs).TotalMilliseconds < MinRfRepeatDelayMs)
+                            if (lastRfMessage == BitConverter.ToString(readData))
                             {
-                                logger.Warn("Ignoring repeated message within {0}ms", MinRfRepeatDelayMs);
-                                continue;
+                                if ((DateTime.Now - lastRfReceivedTs).TotalMilliseconds < 150)
+                                {
+                                    logger.Warn("Ignoring repeated message within {0}ms", 150);
+                                    if ((DateTime.Now - firstRfReceivedTs).TotalMilliseconds <= MinRfRepeatDelayMs)
+                                    {
+                                        lastRfReceivedTs = DateTime.Now;
+                                    }
+                                    continue;
+                                }
+                            }
+                            else
+                            {
+                                firstRfReceivedTs = lastRfReceivedTs = DateTime.Now;
                             }
                             lastRfMessage = BitConverter.ToString(readData);
-                            lastRfReceivedTs = DateTime.Now;
                         }
 
                         OnRfDataReceived(new RfDataReceivedEventArgs(readData));
