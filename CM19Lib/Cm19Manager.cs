@@ -52,8 +52,10 @@ namespace CM19Lib
         private readonly object waitAckMonitor = new object();
 
         // Variables used for preventing duplicated messages coming from RF
+        private const uint RfRepeatGap = 150;
         private DateTime firstRfReceivedTs = DateTime.Now;
         private DateTime lastRfReceivedTs = DateTime.Now;
+        private DateTime lastRfRepeatedTs = DateTime.Now;
         private string lastRfMessage = "";
 
         // Read/Write error state variable
@@ -457,22 +459,24 @@ namespace CM19Lib
                         // Repeated messages check
                         if (message.MessageType != RfMessageType.NotSet)
                         {
-                            if (lastRfMessage == BitConverter.ToString(readData))
+                            if (lastRfMessage == BitConverter.ToString(readData) && (DateTime.Now - lastRfReceivedTs).TotalMilliseconds < RfRepeatGap)
                             {
-                                if ((DateTime.Now - lastRfReceivedTs).TotalMilliseconds < 150)
+                                if ((DateTime.Now - lastRfRepeatedTs).TotalMilliseconds < RfRepeatGap)
                                 {
-                                    logger.Warn("Ignoring repeated message within {0}ms", 150);
+                                    logger.Warn("Ignoring repeated message within {0}ms", RfRepeatGap);
                                     if ((DateTime.Now - firstRfReceivedTs).TotalMilliseconds <= MinRfRepeatDelayMs)
                                     {
-                                        lastRfReceivedTs = DateTime.Now;
+                                        lastRfRepeatedTs = DateTime.Now;
                                     }
+                                    lastRfReceivedTs = DateTime.Now;
                                     continue;
                                 }
                             }
                             else
                             {
-                                firstRfReceivedTs = lastRfReceivedTs = DateTime.Now;
+                                firstRfReceivedTs = lastRfRepeatedTs = DateTime.Now;
                             }
+                            lastRfReceivedTs = DateTime.Now;
                             lastRfMessage = BitConverter.ToString(readData);
                         }
 
