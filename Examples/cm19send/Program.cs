@@ -88,8 +88,8 @@ namespace cm19send
                         Console.WriteLine(">> standard command\n   [ Function '{0}' HouseCode '{1}' Unit '{2}' ]", message.Function, message.HouseCode, message.Unit);
                         cm19.SendCommand(message.HouseCode, message.Unit, message.Function);
                     }
-                    // pause 1 second between each command
-                    if (i < commands.Length - 1) Thread.Sleep(1000);
+                    // pause 500ms between each command
+                    if (i < commands.Length - 1) Thread.Sleep(500);
                 }
                 catch (Exception e)
                 {

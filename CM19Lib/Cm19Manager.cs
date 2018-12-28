@@ -196,6 +196,15 @@ namespace CM19Lib
             }
         }
 
+        /// <summary>
+        /// Number of times to repeat each RF message (default: 3)
+        /// </summary>
+        public static int SendRepeatCount = 3;
+        /// <summary>
+        /// Pause between each RF message sent (default: 40ms).
+        /// </summary>
+        public static int SendPauseMs = 40;
+
         #endregion
 
         #region X10 Commands Implementation
@@ -350,9 +359,9 @@ namespace CM19Lib
                     catch
                     {
                     }
-                    if (cfg.init0 != null && cfg.init0.Length > 0) SendMessage(Utility.StringToByteArray(cfg.init0));
-                    if (cfg.init1 != null && cfg.init1.Length > 0) SendMessage(Utility.StringToByteArray(cfg.init1));
-                    if (cfg.init2 != null && cfg.init2.Length > 0) SendMessage(Utility.StringToByteArray(cfg.init2));
+                    if (cfg.init0 != null && cfg.init0.Length > 0) SendMessage(Utility.StringToByteArray(cfg.init0), 1);
+                    if (cfg.init1 != null && cfg.init1.Length > 0) SendMessage(Utility.StringToByteArray(cfg.init1), 1);
+                    if (cfg.init2 != null && cfg.init2.Length > 0) SendMessage(Utility.StringToByteArray(cfg.init2), 1);
 
                     // Fires the 'ConnectionStatusChanged' event
                     OnConnectionStatusChanged(new ConnectionStatusChangedEventArgs(true));
@@ -390,9 +399,12 @@ namespace CM19Lib
         /// Sends a raw RF message.
         /// </summary>
         /// <param name="message">The raw message.</param>
-        public void SendMessage(byte[] message)
+        /// <param name="sendCount">Number of times to send this message(optional, use to override SendRepeatCount parameter)</param>
+        public void SendMessage(byte[] message, int sendCount = 0)
         {
             lock (waitAckMonitor)
+            for (int i = 0; i < (sendCount > 0 ? sendCount : SendRepeatCount); i++)
+            {
                 try
                 {
                     logger.Debug(BitConverter.ToString(message));
@@ -411,6 +423,9 @@ namespace CM19Lib
                     logger.Error(ex);
                     gotReadWriteError = true;
                 }
+                // pause between each command (default: 40ms)
+                Thread.Sleep(SendPauseMs);
+            }
         }
 
         private void ReaderTask()
