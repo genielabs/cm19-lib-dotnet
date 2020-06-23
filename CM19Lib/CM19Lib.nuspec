@@ -23,12 +23,11 @@ Features
         <copyright>G-Labs</copyright>
         <tags>x10 home automation cm19</tags>
         <dependencies>
-            <dependency id="NLog" version="4.1.0" />
+            <dependency id="NLog" version="4.5.10" />
             <dependency id="LibUsbDotNet" version="2.2.8" />
         </dependencies>
     </metadata>
     <files>
-        <file src="bin\Debug\CM19Lib.dll" target="lib\CM19Lib.dll" />
-        <file src="bin\Debug\CM19Lib.xml" target="lib\CM19Lib.xml" />
+        <file src="bin\Debug\**\CM19Lib.*" target="lib\" />
     </files>
 </package>
