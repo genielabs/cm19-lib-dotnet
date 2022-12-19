@@ -1,7 +1,7 @@
 ﻿/*
   This file is part of CM19Lib (https://github.com/genielabs/cm19-lib-dotnet)
  
-  Copyright (2012-2018) G-Labs (https://github.com/genielabs)
+  Copyright (2012-2023) G-Labs (https://github.com/genielabs)
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@
  */
 
 using System;
-using System.ComponentModel;
 using System.Threading;
 
 using CM19Lib.Driver;
@@ -177,7 +176,7 @@ namespace CM19Lib
                 if (connectionWatcher != null)
                 {
                     if (!connectionWatcher.Join(5000))
-                        connectionWatcher.Abort();
+                        connectionWatcher.Interrupt();
                     connectionWatcher = null;
                 }
                 disconnectRequested = false;
@@ -393,7 +392,7 @@ namespace CM19Lib
                 if (reader != null)
                 {
                     if (!reader.Join(5000))
-                        reader.Abort();
+                        reader.Interrupt();
                     reader = null;
                 }
                 OnConnectionStatusChanged(new ConnectionStatusChangedEventArgs(false));
