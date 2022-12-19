@@ -1,7 +1,7 @@
 ﻿/*
   This file is part of CM19Lib (https://github.com/genielabs/cm19-lib-dotnet)
  
-  Copyright (2012-2018) G-Labs (https://github.com/genielabs)
+  Copyright (2012-2023) G-Labs (https://github.com/genielabs)
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -21,9 +21,6 @@
  *     Project Homepage: https://github.com/genielabs/cm19-lib-dotnet
  */
 
-using System;
-using System.Threading;
-
 using CM19Lib;
 using CM19Lib.Events;
 using CM19Lib.X10;
@@ -40,13 +37,13 @@ namespace cm19send
             commands = args;
             if (commands.Length == 0)
             {
-                Console.WriteLine("Usage: mono cm19send.exe <command_1> [<command_2>...<command_n>]\n");
+                Console.WriteLine("Usage: mono cm19send.old.exe <command_1> [<command_2>...<command_n>]\n");
                 Console.WriteLine("Example of sending standard commands:\n");
-                Console.WriteLine("    mono cm19send.exe A1+ A2+ A3- A- A+\n");
+                Console.WriteLine("    mono cm19send.old.exe A1+ A2+ A3- A- A+\n");
                 Console.WriteLine("  Will turn ON A1 and A2, OFF A3 and then it will");
                 Console.WriteLine("  send a DIM and BRIGHT command (to house code A).\n");
                 Console.WriteLine("Example of sending PT camera commands:\n");
-                Console.WriteLine("    mono cm19send.exe AU AL BD BR\n");
+                Console.WriteLine("    mono cm19send.old.exe AU AL BD BR\n");
                 Console.WriteLine("  Will move camera with house code A UP and LEFT");
                 Console.WriteLine("  and the camera with house code B DOWN and RIGHT.\n");
                 return;

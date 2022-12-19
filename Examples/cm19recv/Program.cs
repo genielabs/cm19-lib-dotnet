@@ -1,7 +1,7 @@
 ﻿/*
   This file is part of CM19Lib (https://github.com/genielabs/cm19-lib-dotnet)
  
-  Copyright (2012-2018) G-Labs (https://github.com/genielabs)
+  Copyright (2012-2023) G-Labs (https://github.com/genielabs)
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -20,9 +20,6 @@
  *     Author: Generoso Martello <gene@homegenie.it>
  *     Project Homepage: https://github.com/genielabs/cm19-lib-dotnet
  */
-
-using System;
-using System.Threading;
 
 using CM19Lib;
 using CM19Lib.Events;
