@@ -175,8 +175,15 @@ namespace CM19Lib
             {
                 if (connectionWatcher != null)
                 {
-                    if (!connectionWatcher.Join(5000))
-                        connectionWatcher.Interrupt();
+                    try
+                    {
+                        Thread.Sleep(2000);
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
+                    connectionWatcher.Interrupt();
                     connectionWatcher = null;
                 }
                 disconnectRequested = false;
@@ -428,7 +435,14 @@ namespace CM19Lib
                     gotReadWriteError = true;
                 }
                 // pause between each command (default: 40ms)
-                Thread.Sleep(SendPauseMs);
+                try
+                {
+                    Thread.Sleep(SendPauseMs);
+                }
+                catch
+                {
+                    // ignored
+                }
             }
         }
 
@@ -577,14 +591,7 @@ namespace CM19Lib
                         Thread.Sleep(3000);
                         if (!disconnectRequested)
                         {
-                            try
-                            {
-                                Open();
-                            }
-                            catch (Exception e)
-                            {
-                                logger.Error(e);
-                            }
+                            Open();
                         }
                     }
                     catch (Exception e)
@@ -593,7 +600,16 @@ namespace CM19Lib
                     }
                 }
                 if (!disconnectRequested)
-                    Thread.Sleep(1000);
+                {
+                    try
+                    {
+                        Thread.Sleep(1000);
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
+                }
             }
         }
 
