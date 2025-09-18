@@ -1,7 +1,7 @@
 ﻿/*
   This file is part of CM19Lib (https://github.com/genielabs/cm19-lib-dotnet)
  
-  Copyright (2012-2023) G-Labs (https://github.com/genielabs)
+  Copyright (2012-2025) G-Labs (https://github.com/genielabs)
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -27,8 +27,7 @@ using System.Threading;
 using CM19Lib.Driver;
 using CM19Lib.Events;
 using CM19Lib.X10;
-
-using NLog;
+using GLabs.Logging;
 
 namespace CM19Lib
 {

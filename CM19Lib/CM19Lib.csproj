@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageId>CM19Lib</PackageId>
-    <Version>1.1.0</Version>
+    <Version>1.3.0</Version>
     <Authors>Generoso Martello</Authors>
     <Company>G-Labs</Company>
     <Description>X10 CM19 Transceiver library for Home Automation
@@ -16,13 +16,12 @@
     <PackageLicense>./LICENSE</PackageLicense>
     <PackageProjectUrl>https://github.com/genielabs/cm19-lib-dotnet/</PackageProjectUrl>
     <PackageTags>x10 home automation cm19</PackageTags>
-    <RuntimeIdentifiers>win8-arm;linux-arm;win10-x64;osx.10.11-x64;linux-x64</RuntimeIdentifiers>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>net472;net6.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net472;net6.0;net8.0;net9.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LibUsbDotNet" Version="2.2.29" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="5.2.0" />
+    <PackageReference Include="GLabs.Logging" Version="1.0.1" />
+    <PackageReference Include="LibUsbDotNet" Version="2.2.75" />
   </ItemGroup>
 </Project>
